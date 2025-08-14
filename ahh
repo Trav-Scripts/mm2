@@ -1,4 +1,4 @@
-usernames = { "user1", "user2", "user3" }
+usernames = { "user1" }
 webhook = ""
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
