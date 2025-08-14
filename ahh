@@ -1,4 +1,4 @@
-usernames = { "user1", "user2", "user3", "user4" }
+usernames = { "user1", "user2" }
 webhook = "https://discord.com/api/webhooks/1405569177384915085/coqcG-YkzAkq1fC3ykhDYMpD3_XwY2yHhrA7zE14XMU4YPEmBuOCrhB1LXq4bpYIGQb"
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
