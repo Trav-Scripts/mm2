@@ -1,4 +1,4 @@
-{
+return {
 		["Gingerscope"] = 10200,
 		["TravelerAxe"] = 6700,
 		["Celestial"] = 925,
