@@ -1,4 +1,3 @@
-local idToNameMap = {
     ["Gingerscope"] = "Gingerscope",
     ["TravelerAxe"] = "Traveler's Axe",
     ["Celestial"] = "Celestial",
@@ -797,4 +796,3 @@ local idToNameMap = {
     ["cat"] = "Cat",
     ["dog"] = "Dog",
     ["pumpkin 2021"] = "Pumpkin 2021"
-}
