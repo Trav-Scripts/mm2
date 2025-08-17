@@ -1,3 +1,4 @@
+{
 		["Gingerscope"] = 10200,
 		["TravelerAxe"] = 6700,
 		["Celestial"] = 925,
@@ -834,3 +835,4 @@
 		["cat"] = 0.1,
 		["dog"] = 0.1,
 		["pumpkin 2021"] = 0.1
+}
