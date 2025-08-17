@@ -1,4 +1,4 @@
-return {
+   return {
    ["Fragile"] = "Fragile_G_2023",
    ["Gingerscythe"] = "Gingerscythe",
    ["Skulls"] = "Skulls_K_2021",
