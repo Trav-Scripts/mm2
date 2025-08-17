@@ -47,7 +47,7 @@
 		["fire fox"] = 13,
 		["fire pig"] = 13,
 		["fire bear"] = 12,
-		["Sorry"] = 850,
+		["Corrupt"] = 825,
 		["GhostKnife"] = 12,
 		["BloodKnife"] = 10,
 		["AmericaSword"] = 8,
