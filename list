@@ -1,4 +1,4 @@
-                return {
+        return {
 		["gingerscope"] = 10200,
 		["traveler's axe"] = 6700,
 		["celestial"] = 925,
