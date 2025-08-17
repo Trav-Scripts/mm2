@@ -1,4 +1,4 @@
-    local idToNameMap = {
+    return {
     ["Gingerscope"] = "Gingerscope",
     ["TravelerAxe"] = "Traveler's Axe",
     ["Celestial"] = "Celestial",
